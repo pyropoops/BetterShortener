@@ -11,7 +11,7 @@ import { randomBytes } from "crypto";
 
 const DATABASE_URL = "mongodb://localhost:27017/";
 const DEFAULT_BYTES_LENGTH = 4;
-const URL_PREFIX = "http://localhost:3000/";
+const URL_PREFIX = "http://138.68.183.151:3000/";
 
 export default class App {
   private app: Application;
@@ -20,11 +20,14 @@ export default class App {
   private client: mongodb.MongoClient | undefined;
 
   constructor() {
-    mongodb.MongoClient.connect(DATABASE_URL, (err, db) => {
-      if (err) return;
-      this.client = db;
-      this.database = db.db("shortener-db");
-    });
+    mongodb.MongoClient.connect(
+      DATABASE_URL,
+      (err: mongodb.MongoError, db: mongodb.MongoClient) => {
+        if (err) return;
+        this.client = db;
+        this.database = db.db("shortener-db");
+      }
+    );
 
     this.app = express();
 
@@ -53,16 +56,18 @@ export default class App {
     }
 
     const id = req.params["id"];
-    this.database.collection("shortens").findOne({ _id: id }, (err, result) => {
-      if (err) throw err;
-      if (result && "url" in result) {
-        res.status(302).redirect(result["url"]);
-        return;
-      }
-      res.status(400).send({
-        error: `Invalid parameters - ${id} is not registed in our database.`,
+    this.database
+      .collection("shortens")
+      .findOne({ _id: id }, (err: mongodb.MongoError, result: any) => {
+        if (err) throw err;
+        if (result && "url" in result) {
+          res.status(302).redirect(result["url"]);
+          return;
+        }
+        res.status(400).send({
+          error: `Invalid parameters - ${id} is not registed in our database.`,
+        });
       });
-    });
   }
 
   private async shorten(req: Request, res: Response) {
@@ -94,11 +99,13 @@ export default class App {
       url: url,
       _id: id,
     };
-    this.database.collection("shortens").insertOne(data, (err, _) => {
-      if (err) throw err;
-      res.status(500).send({ error: "Internal server error" });
-      return;
-    });
+    this.database
+      .collection("shortens")
+      .insertOne(data, (err: mongodb.MongoError) => {
+        if (err) throw err;
+        res.status(500).send({ error: "Internal server error" });
+        return;
+      });
 
     res.status(200).send({ shortened: URL_PREFIX + id, url: url });
   }
