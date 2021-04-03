@@ -104,12 +104,12 @@ export default class App {
     this.database
       .collection("shortens")
       .insertOne(data, (err: mongodb.MongoError) => {
-        if (err) throw err;
-        res.status(500).send({ error: "Internal server error" });
-        return;
+        if (err) {
+          res.status(500).send({ error: "Internal server error" });
+          throw err;
+        }
+        res.status(200).send({ shortened: URL_PREFIX + id, url: url });
       });
-
-    res.status(200).send({ shortened: URL_PREFIX + id, url: url });
   }
 
   public close() {
