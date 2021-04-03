@@ -72,6 +72,8 @@ export default class App {
   }
 
   private async shorten(req: Request, res: Response) {
+    console.log(req.body);
+
     if (!this.database) {
       res.status(500).send({
         error: "Internal server error - database missing or corrupt.",
@@ -83,7 +85,6 @@ export default class App {
       res
         .status(400)
         .send({ error: 'Invalid parameters: "url" field required.' });
-      console.log(req.body); //debug
       return;
     }
 
