@@ -8,6 +8,7 @@ import express, {
 import * as http from "http";
 import * as mongodb from "mongodb";
 import { randomBytes } from "crypto";
+import * as validurl from "valid-url";
 
 const DATABASE_URL = "mongodb://localhost:27017/";
 const DEFAULT_BYTES_LENGTH = 4;
@@ -72,8 +73,6 @@ export default class App {
   }
 
   private async shorten(req: Request, res: Response) {
-    console.log(req.body);
-
     if (!this.database) {
       res.status(500).send({
         error: "Internal server error - database missing or corrupt.",
@@ -89,7 +88,7 @@ export default class App {
     }
 
     const url = req.body["url"];
-    if (!this.isURLValid(url)) {
+    if (!validurl.isHttpUri(url) && !validurl.isHttpsUri(url)) {
       res
         .status(400)
         .send({ error: 'Invalid parameters: "url" field is invalid.' });
@@ -111,15 +110,6 @@ export default class App {
       });
 
     res.status(200).send({ shortened: URL_PREFIX + id, url: url });
-  }
-
-  private isURLValid(url: string): boolean {
-    try {
-      new URL(url);
-    } catch (_) {
-      return false;
-    }
-    return true;
   }
 
   public close() {
