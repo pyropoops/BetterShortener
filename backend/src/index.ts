@@ -22,6 +22,7 @@ export default class App {
   constructor() {
     mongodb.MongoClient.connect(
       DATABASE_URL,
+      { useUnifiedTopology: true },
       (err: mongodb.MongoError, db: mongodb.MongoClient) => {
         if (err) return;
         this.client = db;
