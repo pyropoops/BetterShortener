@@ -83,6 +83,7 @@ export default class App {
       res
         .status(400)
         .send({ error: 'Invalid parameters: "url" field required.' });
+      console.log(req.body); //debug
       return;
     }
 
