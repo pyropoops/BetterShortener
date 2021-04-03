@@ -136,8 +136,8 @@ export default class App {
   }
 
   public listen(port: number) {
-    this.server.listen(port);
     console.log(`Listening on port: ${port}`);
+    this.server.listen(port);
   }
 }
 
